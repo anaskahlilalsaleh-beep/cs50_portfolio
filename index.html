@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="de" dir="ltr">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CS50 Portfolio</title>
+
+    <style>
+        /* ===== متغيرات الألوان ===== */
+        :root {
+            --primary: #4c6ef5;
+            --primary-dark: #3b5bdb;
+            --primary-light: #748ffc;
+            --bg-main: #f8f9fa;
+            --bg-card: #ffffff;
+            --text-dark: #212529;
+            --text-gray: #495057;
+            --text-light: #868e96;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+            --border-radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-main);
+            color: var(--text-dark);
+            line-height: 1.6;
+            transition: var(--transition);
+        }
+
+        /* ===== RTL Support للعربية ===== */
+        body[dir="rtl"] {
+            font-family: system-ui, Tahoma, Arial, sans-serif;
+        }
+
+        /* ===== Header ===== */
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 80px 20px 60px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+
+        header h1 {
+            font-size: 3em;
+            font-weight: 700;
+            margin-bottom: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        header p {
+            font-size: 1.3em;
+            opacity: 0.95;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ===== Language Selector ===== */
+        .language-selector {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 10;
+        }
+
+        body[dir="rtl"] .language-selector {
+            right: auto;
+            left: 20px;
+        }
+
+        .language-selector select {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            outline: none;
+        }
+
+        .language-selector select:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .language-selector select option {
+            background: var(--text-dark);
+            color: white;
+        }
+
+        /* ===== Section ===== */
+        section {
+            max-width: 1200px;
+            margin: auto;
+            padding: 60px 20px;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 40px;
+            color: var(--text-dark);
+            font-weight: 700;
+        }
+
+        /* ===== Tabs ===== */
+        .tabs {
+            text-align: center;
+            margin-bottom: 40px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .tab-btn {
+            border: 2px solid transparent;
+            padding: 12px 24px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 15px;
+            background: var(--bg-card);
+            color: var(--text-gray);
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tab-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary-light);
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary);
+        }
+
+        .tab-btn.active::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .tab-btn.active:hover::before {
+            left: 100%;
+        }
+
+        /* ===== فاصل بين المجموعات ===== */
+        .tab-divider {
+            width: 2px;
+            height: 30px;
+            background: var(--text-light);
+            opacity: 0.3;
+            align-self: center;
+        }
+
+        /* ===== Cards Grid ===== */
+        .projects {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+            animation: fadeIn 0.6s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            background: var(--bg-card);
+            padding: 24px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            border-left: 4px solid var(--primary);
+            position: relative;
+            overflow: hidden;
+        }
+
+        body[dir="rtl"] .card {
+            border-left: none;
+            border-right: 4px solid var(--primary);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
+            opacity: 0;
+            transition: var(--transition);
+            z-index: 0;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card:hover::before {
+            opacity: 0.03;
+        }
+
+        .card h3 {
+            margin: 0 0 12px;
+            font-size: 1.3em;
+            color: var(--text-dark);
+            position: relative;
+            z-index: 1;
+        }
+
+        .card p {
+            font-size: 0.95em;
+            color: var(--text-gray);
+            margin-bottom: 16px;
+            line-height: 1.6;
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: var(--transition);
+            position: relative;
+            z-index: 1;
+            box-shadow: 0 4px 12px rgba(76, 110, 245, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(76, 110, 245, 0.4);
+        }
+
+        /* ===== Footer ===== */
+        footer {
+            background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+            margin-top: 60px;
+            font-size: 0.95em;
+        }
+
+        /* ===== Responsive ===== */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2em;
+            }
+
+            header p {
+                font-size: 1.1em;
+            }
+
+            h2 {
+                font-size: 2em;
+            }
+
+            .tabs {
+                gap: 8px;
+            }
+
+            .tab-btn {
+                padding: 10px 16px;
+                font-size: 14px;
+            }
+
+            .projects {
+                grid-template-columns: 1fr;
+            }
+
+            .language-selector {
+                position: static;
+                text-align: center;
+                margin-bottom: 20px;
+            }
+
+            header {
+                padding-top: 40px;
+            }
+        }
+
+        /* ===== Loading Animation ===== */
+        .card {
+            animation: slideUp 0.5s ease-out backwards;
+        }
+
+        .card:nth-child(1) {
+            animation-delay: 0.05s;
+        }
+
+        .card:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        .card:nth-child(3) {
+            animation-delay: 0.15s;
+        }
+
+        .card:nth-child(4) {
+            animation-delay: 0.2s;
+        }
+
+        .card:nth-child(5) {
+            animation-delay: 0.25s;
+        }
+
+        .card:nth-child(6) {
+            animation-delay: 0.3s;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ===== Contact Section ===== */
+        #contact {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 80px 20px;
+            margin-top: 80px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #contact::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="contact-grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23contact-grid)"/></svg>');
+            opacity: 0.3;
+        }
+
+        #contactTitle {
+            color: white;
+            position: relative;
+            z-index: 1;
+            margin-bottom: 50px;
+        }
+
+        .contact-container {
+            max-width: 900px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .contact-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 40px 30px;
+            border-radius: 20px;
+            text-align: center;
+            transition: var(--transition);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .contact-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+
+        .contact-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            transition: var(--transition);
+            box-shadow: 0 8px 20px rgba(76, 110, 245, 0.4);
+        }
+
+        .contact-card:hover .contact-icon {
+            transform: rotate(360deg) scale(1.1);
+            box-shadow: 0 12px 30px rgba(76, 110, 245, 0.6);
+        }
+
+        .github-icon {
+            background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+            box-shadow: 0 8px 20px rgba(45, 55, 72, 0.4);
+        }
+
+        .contact-card:hover .github-icon {
+            box-shadow: 0 12px 30px rgba(45, 55, 72, 0.6);
+        }
+
+        .contact-card h3 {
+            font-size: 1.8em;
+            color: var(--text-dark);
+            margin-bottom: 10px;
+        }
+
+        .contact-card p {
+            color: var(--text-gray);
+            margin-bottom: 25px;
+            font-size: 1.05em;
+        }
+
+        .contact-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 14px 30px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 600;
+            transition: var(--transition);
+            box-shadow: 0 6px 20px rgba(76, 110, 245, 0.3);
+        }
+
+        .contact-btn:hover {
+            transform: translateX(5px);
+            box-shadow: 0 8px 25px rgba(76, 110, 245, 0.5);
+        }
+
+        .github-btn {
+            background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+            box-shadow: 0 6px 20px rgba(45, 55, 72, 0.3);
+        }
+
+        .github-btn:hover {
+            box-shadow: 0 8px 25px rgba(45, 55, 72, 0.5);
+        }
+
+        .contact-btn svg {
+            transition: var(--transition);
+        }
+
+        .contact-btn:hover svg {
+            transform: translateX(5px);
+        }
+
+        /* ===== Responsive للـ Contact ===== */
+        @media (max-width: 768px) {
+            #contact {
+                padding: 60px 20px;
+            }
+
+            .contact-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .contact-card {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ===== HEADER ===== -->
+    <header>
+        <!-- ===== Language Selector ===== -->
+        <div class="language-selector">
+            <select id="languageSelect" onchange="changeLanguage(this.value)">
+                <option value="de">🇩🇪 Deutsch</option>
+                <option value="ar">🇸🇦 العربية</option>
+                <option value="en">🇬🇧 English</option>
+            </select>
+        </div>
+
+        <h1 id="headerName">Mohamad-Anas Alsaleh</h1>
+        <p id="headerTitle">CS50-Student | Junior-Softwareentwickler</p>
+    </header>
+
+
+    <section>
+        <h2 id="sectionTitle">Alle Projekte</h2>
+
+        <!-- ===== Tabs ===== -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="filter('all', this)" id="btnAll">Alle</button>
+
+            <div class="tab-divider"></div>
+
+            <button class="tab-btn" onclick="filter('cs50x', this)" id="btnCS50x">CS50x</button>
+            <button class="tab-btn" onclick="filter('c', this)" id="btnC">C</button>
+            <button class="tab-btn" onclick="filter('python-cs50x', this)" id="btnPythonCS50x">Python</button>
+            <button class="tab-btn" onclick="filter('sql', this)" id="btnSQL">SQL</button>
+            <button class="tab-btn" onclick="filter('web', this)" id="btnWeb">Web</button>
+            <button class="tab-btn" onclick="filter('final', this)" id="btnFinal">Final Project</button>
+
+            <div class="tab-divider"></div>
+
+            <button class="tab-btn" onclick="filter('cs50p', this)" id="btnCS50p">CS50P</button>
+        </div>
+
+
+        <div class="projects">
+
+            <!-- ================= Final Project (CS50x) ================= -->
+            <div class="card final cs50x">
+                <h3> <span class="project-title" data-key="finalProject">Final Project</span></h3>
+                <p class="project-desc" data-key="finalProjectDesc"><!-- اكتب وصف مشروعك النهائي -->Abschlussprojekt
+                    Smart task Memo</p>
+                <a class="btn" href="https://youtu.be/w70onzzy51Y" id="btnDemo">Watch</a>
+            </div>
+
+            <!-- ================= C (CS50x) ================= -->
+
+            <div class="card c cs50x">
+                <h3> <span class="project-title" data-key="credit">Cash</span></h3>
+                <p class="project-desc" data-key="creditDesc">Berechnung der zurückkehrenden Währungen</p>
+            </div>
+
+            <div class="card c cs50x">
+                <h3> <span class="project-title" data-key="readability">Readability</span></h3>
+                <p class="project-desc" data-key="readabilityDesc">Analyse des Leseniveaus</p>
+            </div>
+
+            <div class="card c cs50x">
+                <h3> <span class="project-title" data-key="filter">Filter</span></h3>
+                <p class="project-desc" data-key="filterDesc">Bildverarbeitung</p>
+            </div>
+
+            <div class="card c cs50x">
+                <h3> <span class="project-title" data-key="speller">Speller</span></h3>
+                <p class="project-desc" data-key="spellerDesc">Rechtschreibprüfung mit Hash Table</p>
+            </div>
+
+
+            <!-- ================= Python داخل CS50x ================= -->
+            <div class="card python-cs50x cs50x">
+                <h3> <span class="project-title" data-key="dna">DNA</span></h3>
+                <p class="project-desc" data-key="dnaDesc">DNA-Sequenzanalyse</p>
+            </div>
+
+            <div class="card python-cs50x cs50x">
+                <h3> <span class="project-title" data-key="sentimental">Sentimental</span></h3>
+                <p class="project-desc" data-key="sentimentalDesc">Stimmungsanalyse mit Python</p>
+            </div>
+
+
+            <!-- ================= SQL (CS50x) ================= -->
+            <div class="card sql cs50x">
+                <h3> <span class="project-title" data-key="movies">Movies</span></h3>
+                <p class="project-desc" data-key="moviesDesc">SQL-Abfragen für Filmdatenbank</p>
+            </div>
+
+            <div class="card sql cs50x">
+                <h3> <span class="project-title" data-key="fiftyville">Fiftyville</span></h3>
+                <p class="project-desc" data-key="fiftyvilleDesc">Rätsel lösen mit SQL</p>
+            </div>
+
+
+            <!-- ================= Web (CS50x) ================= -->
+            <div class="card web cs50x">
+                <h3> <span class="project-title" data-key="homepage">Homepage</span></h3>
+                <p class="project-desc" data-key="homepageDesc">Einfache HTML/CSS-Website</p>
+            </div>
+
+            <div class="card web cs50x">
+                <h3> <span class="project-title" data-key="finance">Finance</span></h3>
+                <p class="project-desc" data-key="financeDesc">Flask-App für Aktienhandel-Simulation</p>
+            </div>
+
+
+            <!-- ================= CS50P - Python Course ================= -->
+            <div class="card cs50p">
+                <h3> <span class="project-title" data-key="indoor">Indoor Voice</span></h3>
+                <p class="project-desc" data-key="indoorDesc">Text in Kleinbuchstaben umwandeln</p>
+            </div>
+
+            <div class="card cs50p">
+                <h3> <span class="project-title" data-key="playback">Playback Speed</span></h3>
+                <p class="project-desc" data-key="playbackDesc">Sprechgeschwindigkeit anpassen</p>
+            </div>
+
+            <div class="card cs50p">
+                <h3> <span class="project-title" data-key="faces">Making Faces</span></h3>
+                <p class="project-desc" data-key="facesDesc">Emoji-Ersetzung</p>
+            </div>
+
+            <div class="card cs50p">
+                <h3> <span class="project-title" data-key="bank">Bank</span></h3>
+                <p class="project-desc" data-key="bankDesc">If-Bedingungen</p>
+            </div>
+
+            <div class="card cs50p">
+                <h3> <span class="project-title" data-key="loops">Loops</span></h3>
+                <p class="project-desc" data-key="loopsDesc">Schleifen-Anwendungen</p>
+            </div>
+
+            <div class="card cs50p">
+                <h3> <span class="project-title" data-key="fileio">File I/O</span></h3>
+                <p class="project-desc" data-key="fileioDesc">Dateiverwaltung</p>
+            </div>
+
+            <div class="card cs50p">
+                <h3> <span class="project-title" data-key="oop">OOP Project</span></h3>
+                <p class="project-desc" data-key="oopDesc">Objektorientierte Programmierung</p>
+            </div>
+
+
+
+        </div>
+    </section>
+    <!-- ===== Contact Section ===== -->
+    <section id="contact">
+        <h2 id="contactTitle">Get In Touch</h2>
+
+        <div class="contact-container">
+
+            <div class="contact-card">
+                <div class="contact-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="4" width="20" height="16" rx="2" />
+                        <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                    </svg>
+                </div>
+                <h3>Email</h3>
+                <p>Feel free to reach out!</p>
+                <a href="anaskahlilalsaleh@gmail.com" class="contact-btn">
+                    <span>Send Email</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5 12h14" />
+                        <path d="m12 5 7 7-7 7" />
+                    </svg>
+                </a>
+            </div>
+
+            <div class="contact-card">
+                <div class="contact-icon github-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24"
+                        fill="currentColor">
+                        <path
+                            d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                    </svg>
+                </div>
+                <h3>GitHub</h3>
+                <p>Check out my projects!</p>
+                <a href="https://github.com/anaskahlilalsaleh-beep" target="_blank" class="contact-btn github-btn">
+                    <span>Visit Profile</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5 12h14" />
+                        <path d="m12 5 7 7-7 7" />
+                    </svg>
+                </a>
+            </div>
+
+        </div>
+    </section>
+
+    <footer>
+        <span id="footerText">© 2026 Mohamad-Anas Alsaleh</span> <!-- اسمك -->
+    </footer>
+
+
+    <script>
+        // ===== نظام الترجمة المتعدد =====
+        const translations = {
+            de: {
+                // Header
+                headerTitle: "CS50-Student | Junior-Softwareentwickler",
+
+                // Section
+                sectionTitle: "Alle Projekte",
+
+                // Tabs
+                btnAll: "Alle",
+                btnCS50x: "CS50x",
+                btnC: "C",
+                btnPythonCS50x: "Python",
+                btnSQL: "SQL",
+                btnWeb: "Web",
+                btnFinal: "Final Project",
+                btnCS50p: "CS50P",
+                btnDemo: "Watch",
+
+                // Projects - CS50x
+                scratch: "Scratch",
+                scratchDesc: "Spiel mit Scratch erstellt",
+                credit: "Cash",
+                creditDesc: "Berechnung der zurückkehrenden Währungen",
+                readability: "Readability",
+                readabilityDesc: "Analyse des Leseniveaus",
+                filter: "Filter",
+                filterDesc: "Bildverarbeitung",
+                speller: "Speller",
+                spellerDesc: "Rechtschreibprüfung mit Hash Table",
+                dna: "DNA",
+                dnaDesc: "DNA-Sequenzanalyse",
+                sentimental: "Sentimental",
+                sentimentalDesc: "Stimmungsanalyse mit Python",
+                movies: "Movies",
+                moviesDesc: "SQL-Abfragen für Filmdatenbank",
+                fiftyville: "Fiftyville",
+                fiftyvilleDesc: "Rätsel lösen mit SQL",
+                homepage: "Homepage",
+                homepageDesc: "Einfache HTML/CSS-Website",
+                finance: "Finance",
+                financeDesc: "Flask-App für Aktienhandel-Simulation",
+
+                // Projects - CS50P
+                indoor: "Indoor Voice",
+                indoorDesc: "Text in Kleinbuchstaben umwandeln",
+                playback: "Playback Speed",
+                playbackDesc: "Sprechgeschwindigkeit anpassen",
+                faces: "Making Faces",
+                facesDesc: "Emoji-Ersetzung",
+                bank: "Bank",
+                bankDesc: "If-Bedingungen",
+                loops: "Loops",
+                loopsDesc: "Schleifen-Anwendungen",
+                fileio: "File I/O",
+                fileioDesc: "Dateiverwaltung",
+                oop: "OOP Project",
+                oopDesc: "Objektorientierte Programmierung",
+
+                // Final Project
+                finalProject: "Final Project",
+                finalProjectDesc: "Dein Abschlussprojekt hier",
+
+                // Footer
+                footerText: "© 2026 Mohamad-Anas Alsaleh"
+            },
+
+            en: {
+                // Header
+                headerTitle: "CS50-Student | Junior-Softwareentwickler",
+
+                // Section
+                sectionTitle: "All Projects",
+
+                // Tabs
+                btnAll: "All",
+                btnCS50x: "CS50x",
+                btnC: "C",
+                btnPythonCS50x: "Python",
+                btnSQL: "SQL",
+                btnWeb: "Web",
+                btnFinal: "Final Project",
+                btnCS50p: "CS50P",
+                btnDemo: "Watch",
+
+                // Projects - CS50x
+                scratch: "Scratch",
+                scratchDesc: "Game created with Scratch",
+                credit: "Cash",
+                creditDesc: "Calculating returned currencies",
+                readability: "Readability",
+                readabilityDesc: "Reading level analysis",
+                filter: "Filter",
+                filterDesc: "Image processing",
+                speller: "Speller",
+                spellerDesc: "Spell checker using Hash Table",
+                dna: "DNA",
+                dnaDesc: "DNA sequence analysis",
+                sentimental: "Sentimental",
+                sentimentalDesc: "Sentiment analysis with Python",
+                movies: "Movies",
+                moviesDesc: "SQL queries on movie database",
+                fiftyville: "Fiftyville",
+                fiftyvilleDesc: "Solving mystery with SQL",
+                homepage: "Homepage",
+                homepageDesc: "Simple HTML/CSS website",
+                finance: "Finance",
+                financeDesc: "Flask app for stock trading simulation",
+
+                // Projects - CS50P
+                indoor: "Indoor Voice",
+                indoorDesc: "Convert text to lowercase",
+                playback: "Playback Speed",
+                playbackDesc: "Adjust speech speed",
+                faces: "Making Faces",
+                facesDesc: "Emoji replacement",
+                bank: "Bank",
+                bankDesc: "If conditions",
+                loops: "Loops",
+                loopsDesc: "Loop applications",
+                fileio: "File I/O",
+                fileioDesc: "File handling",
+                oop: "OOP Project",
+                oopDesc: "Object-oriented programming",
+
+                // Final Project
+                finalProject: "Final Project",
+                finalProjectDesc: "Your final project here",
+
+                // Footer
+                footerText: "© 2026 Mohamad-Anas Alsaleh"
+            },
+
+            ar: {
+                // Header
+                headerTitle: "طالب CS50 | مطور برمجيات",
+
+                // Section
+                sectionTitle: "جميع المشاريع",
+
+                // Tabs
+                btnAll: "الكل",
+                btnCS50x: "CS50x",
+                btnC: "C",
+                btnPythonCS50x: "بايثون",
+                btnSQL: "SQL",
+                btnWeb: "ويب",
+                btnFinal: "المشروع النهائي",
+                btnCS50p: "CS50P",
+                btnDemo: "شاهد",
+
+                // Projects - CS50x
+                scratch: "Scratch",
+                scratchDesc: "لعبة باستخدام Scratch",
+                credit: "Cash",
+                creditDesc: "حساب العملات المستردة",
+                readability: "Readability",
+                readabilityDesc: "تحليل مستوى القراءة",
+                filter: "Filter",
+                filterDesc: "معالجة الصور",
+                speller: "Speller",
+                spellerDesc: "مدقق إملائي باستخدام Hash Table",
+                dna: "DNA",
+                dnaDesc: "تحليل تسلسل DNA",
+                sentimental: "Sentimental",
+                sentimentalDesc: "تحليل المشاعر باستخدام Python",
+                movies: "Movies",
+                moviesDesc: "استعلامات SQL على قاعدة بيانات أفلام",
+                fiftyville: "Fiftyville",
+                fiftyvilleDesc: "حل لغز باستخدام SQL",
+                homepage: "Homepage",
+                homepageDesc: "موقع HTML/CSS بسيط",
+                finance: "Finance",
+                financeDesc: "تطبيق Flask لمحاكاة الأسهم",
+
+                // Projects - CS50P
+                indoor: "Indoor Voice",
+                indoorDesc: "تحويل النص لحروف صغيرة",
+                playback: "Playback Speed",
+                playbackDesc: "تعديل سرعة الكلام",
+                faces: "Making Faces",
+                facesDesc: "استبدال الرموز التعبيرية",
+                bank: "Bank",
+                bankDesc: "شروط if",
+                loops: "Loops",
+                loopsDesc: "تطبيقات على الحلقات",
+                fileio: "File I/O",
+                fileioDesc: "التعامل مع الملفات",
+                oop: "OOP Project",
+                oopDesc: "برمجة كائنية التوجه",
+
+                // Final Project
+                finalProject: "المشروع النهائي",
+                finalProjectDesc: "مشروعك النهائي هنا",
+
+                // Footer
+                footerText: "© 2026 Mohamad-Anas Alsaleh"
+            }
+        };
+
+        // ===== تطبيق الترجمة =====
+        function applyTranslations(lang) {
+            const trans = translations[lang];
+
+            // Header
+            document.getElementById('headerTitle').textContent = trans.headerTitle;
+
+            // Section
+            document.getElementById('sectionTitle').textContent = trans.sectionTitle;
+
+            // Tabs
+            document.getElementById('btnAll').textContent = trans.btnAll;
+            document.getElementById('btnCS50x').textContent = trans.btnCS50x;
+            document.getElementById('btnC').textContent = trans.btnC;
+            document.getElementById('btnPythonCS50x').textContent = trans.btnPythonCS50x;
+            document.getElementById('btnSQL').textContent = trans.btnSQL;
+            document.getElementById('btnWeb').textContent = trans.btnWeb;
+            document.getElementById('btnFinal').textContent = trans.btnFinal;
+            document.getElementById('btnCS50p').textContent = trans.btnCS50p;
+            document.getElementById('btnDemo').textContent = trans.btnDemo;
+
+            // Projects
+            document.querySelectorAll('.project-title').forEach(el => {
+                const key = el.getAttribute('data-key');
+                if (trans[key]) {
+                    el.textContent = trans[key];
+                }
+            });
+
+            document.querySelectorAll('.project-desc').forEach(el => {
+                const key = el.getAttribute('data-key');
+                if (trans[key]) {
+                    el.textContent = trans[key];
+                }
+            });
+
+            // Footer
+            document.getElementById('footerText').textContent = trans.footerText;
+        }
+
+        // ===== تغيير اللغة =====
+        function changeLanguage(lang) {
+            // تطبيق الترجمة
+            applyTranslations(lang);
+
+            // تغيير اتجاه الصفحة
+            const html = document.documentElement;
+            const body = document.body;
+
+            if (lang === 'ar') {
+                html.setAttribute('lang', 'ar');
+                html.setAttribute('dir', 'rtl');
+                body.setAttribute('dir', 'rtl');
+            } else if (lang === 'en') {
+                html.setAttribute('lang', 'en');
+                html.setAttribute('dir', 'ltr');
+                body.setAttribute('dir', 'ltr');
+            } else if (lang === 'de') {
+                html.setAttribute('lang', 'de');
+                html.setAttribute('dir', 'ltr');
+                body.setAttribute('dir', 'ltr');
+            }
+
+            // حفظ اللغة المختارة
+            localStorage.setItem('preferredLanguage', lang);
+        }
+
+        // ===== تحميل اللغة المحفوظة =====
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedLang = localStorage.getItem('preferredLanguage') || 'de';
+            document.getElementById('languageSelect').value = savedLang;
+            changeLanguage(savedLang);
+        });
+
+        // ===== نظام التصفية =====
+        function filter(category, btn) {
+            const cards = document.querySelectorAll(".card");
+            const buttons = document.querySelectorAll(".tab-btn");
+
+            // إزالة active من جميع الأزرار
+            buttons.forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+
+            // تصفية البطاقات
+            cards.forEach(card => {
+                let shouldShow = false;
+
+                if (category === "all") {
+                    shouldShow = true;
+                } else if (category === "cs50x") {
+                    shouldShow = card.classList.contains("cs50x");
+                } else if (category === "cs50p") {
+                    shouldShow = card.classList.contains("cs50p");
+                } else {
+                    shouldShow = card.classList.contains(category);
+                }
+
+                if (shouldShow) {
+                    card.style.display = "block";
+                } else {
+                    card.style.display = "none";
+                }
+            });
+        }
+    </script>
+
+</body>
+
+</html>
